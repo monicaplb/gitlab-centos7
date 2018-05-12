@@ -1,0 +1,31 @@
+---
+- name: Instalação do gitlab
+  hosts: gitlab
+  tasks:
+    - name: instalando pré-requisitos
+      yum: name={{ item }} state=present
+      with_items:
+        - curl
+        - policycoreutils-python
+        - openssh-server
+
+    - name: habilitando o ssh
+      service: name=sshd state=running enabled=True
+
+#    - name: habilitando o firewalld
+#      shell: firewall-cmd --permanent --add-service=http
+
+    - name: reiniciando o firewalld 
+      service: name=firewalld state=stopped
+      
+    - name: instalando o postfix
+      yum: name=postfix state=present
+
+    - name: habilitando o postfix
+      service: name=postfix state=running enabled=True
+
+    - name: habilitando repo do gitlab
+      shell: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | bash
+
+    - name: instalando o git
+      yum: name=gitlab-ce state=present
